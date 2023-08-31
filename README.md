@@ -12,7 +12,7 @@ Activate:
 mamba activate prompt-testing-blog
 ```
 
-## Run the CLI
+## Run the app
 
 
 ```shell
@@ -23,3 +23,12 @@ python app.py hello
 python app.py intro --name Bob  
 ```
 
+## Run the tests
+
+```shell
+p9e run prompt_cases.py
+```
+
+```shell
+p9e run prompt_cases.py --output report.yaml 
+```
