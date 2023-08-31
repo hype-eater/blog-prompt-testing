@@ -1,0 +1,10 @@
+name: prompt-testing-blog
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - typer
+  - langchain
+  - pip:
+      - promptimize
