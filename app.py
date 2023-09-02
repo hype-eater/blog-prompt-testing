@@ -3,7 +3,7 @@ from langchain import OpenAI, PromptTemplate
 
 app = typer.Typer(help="A helpful and friendly CLI")
 
-GREETING_PROMPT = "A greeting: "
+GREETING_PROMPT = "An amusing greeting: "
 INTRODUCTION_PROMPT_TMPL = PromptTemplate(
     input_variables=["name"],
     template="Hello, my name is {name}.",
