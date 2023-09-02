@@ -6,7 +6,7 @@ app = typer.Typer(help="A helpful and friendly CLI")
 GREETING_PROMPT = "An amusing greeting: "
 INTRODUCTION_PROMPT_TMPL = PromptTemplate(
     input_variables=["name"],
-    template="Hello, my name is '{name}'.",
+    template="Hello, please call me {name}. A friendly greeting: ",
 )
 
 
