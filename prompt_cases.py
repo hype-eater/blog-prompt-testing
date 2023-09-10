@@ -3,10 +3,15 @@ from promptimize.prompt_cases import PromptCase, LangchainPromptCase
 
 from app import GREETING_PROMPT, INTRODUCTION_PROMPT_TMPL, get_prompt_executor
 
-prompt_executor = get_prompt_executor()
+import os
 
-def greeting_case(prompt_executor, index):
-    greeting_words = ["hello", "hi", "hey", "hiya"]
+model = os.getenv("MODEL", "text-davinci-003")
+prompt_executor = get_prompt_executor(model)
+
+
+def greeting_case(prompt_executor, index: str | int) -> PromptCase:
+    greeting_words = ["hello", "hi", "howdy", "welcome", "good day", "good morning",
+                      "good evening", "hey", "hiya", "what's up"]
     return PromptCase(GREETING_PROMPT,
                       key=f"greeting-{index}",
                       category="greeting",
@@ -16,6 +21,7 @@ def greeting_case(prompt_executor, index):
 
 
 simple_prompt_cases = [greeting_case(prompt_executor, index) for index in range(5)]
+
 
 def intro_case_for_name(prompt_executor, name: str) -> LangchainPromptCase:
     return LangchainPromptCase(INTRODUCTION_PROMPT_TMPL,
