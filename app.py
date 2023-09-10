@@ -1,7 +1,30 @@
 import typer
 from langchain import OpenAI, PromptTemplate
 
-app = typer.Typer(help="A helpful and friendly CLI")
+from enum import Enum
+
+
+class LlmProvider(str, Enum):
+    OPENAI = 'openai'
+    HF_HUB = 'hfhub'
+    HIYA = 'hiya'
+
+
+app = typer.Typer()
+state = {
+    "model_name": None,
+    "provider": LlmProvider.HIYA
+}
+
+
+@app.callback()
+def main(model: str = None, provider: LlmProvider = LlmProvider.HIYA):
+    """A helpful and friendly CLI"""
+    if model is not None:
+        state["model_name"] = model
+    if provider is not None:
+        state["provider"] = provider
+
 
 GREETING_PROMPT = "An amusing greeting: "
 INTRODUCTION_PROMPT_TMPL = PromptTemplate(
@@ -13,7 +36,7 @@ INTRODUCTION_PROMPT_TMPL = PromptTemplate(
 @app.command()
 def hello():
     """Say hello"""
-    executor = get_prompt_executor()
+    executor = get_prompt_executor(**state)
     response = executor(GREETING_PROMPT)
     print(response.strip())
 
@@ -21,7 +44,7 @@ def hello():
 @app.command()
 def intro(name: str = "User"):
     """Reply to an introduction"""
-    executor = get_prompt_executor()
+    executor = get_prompt_executor(**state)
     prompt = INTRODUCTION_PROMPT_TMPL.format_prompt(name=name)
     response = executor(prompt.to_string())
     print(response.strip())
