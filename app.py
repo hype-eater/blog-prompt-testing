@@ -27,8 +27,15 @@ def intro(name: str = "User"):
     print(response.strip())
 
 
-def get_prompt_executor(model_name="text-davinci-003"):
-    executor = OpenAI(model_name=model_name)
+def get_prompt_executor(model_name="text-davinci-003", provider="openai"):
+    match provider:
+        case "hfhub":
+            model_name = model_name or "google/flan-t5-xxl"
+            from langchain import HuggingFaceHub
+            executor = HuggingFaceHub(repo_id=model_name)
+        case _:  # default to "openai"
+            model_name = model_name or "text-davinci-003"
+            executor = OpenAI(model_name=model_name)
     return executor
 
 

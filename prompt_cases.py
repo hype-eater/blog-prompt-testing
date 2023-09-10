@@ -5,8 +5,9 @@ from app import GREETING_PROMPT, INTRODUCTION_PROMPT_TMPL, get_prompt_executor
 
 import os
 
-model = os.getenv("MODEL", "text-davinci-003")
-prompt_executor = get_prompt_executor(model)
+model = os.getenv("MODEL")
+provider = os.getenv("PROVIDER")
+prompt_executor = get_prompt_executor(model, provider)
 
 
 def greeting_case(prompt_executor, index: str | int) -> PromptCase:
