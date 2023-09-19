@@ -7,5 +7,6 @@ dependencies:
   - typer
   - langchain
   - black
+  - restrictedpython
   - pip:
       - promptimize

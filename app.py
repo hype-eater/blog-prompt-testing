@@ -1,8 +1,11 @@
 import typer
 from langchain import OpenAI, PromptTemplate
-
 from enum import Enum
-
+import types
+from typing import Callable
+from RestrictedPython import compile_restricted, PrintCollector, safe_builtins
+from RestrictedPython.Guards import guarded_unpack_sequence
+from RestrictedPython.Eval import default_guarded_getiter
 
 class LlmProvider(str, Enum):
     OPENAI = 'openai'
@@ -70,6 +73,22 @@ def format_code(raw_str: str) -> str:
     formatted_code_str = format_str(raw_str, mode=FileMode())
     return formatted_code_str
 
+
+def exec_code_and_return_function(code_str: str) -> Callable:
+    restricted_code = compile_restricted(code_str, '<string>', 'exec')
+    restricted_globals = {
+        "__builtins__": safe_builtins,
+        "_print_": PrintCollector,
+        "_unpack_sequence_": guarded_unpack_sequence,
+        "_getiter_": default_guarded_getiter,
+    }
+
+    orig_global_keys = set(restricted_globals.keys())
+
+    exec(restricted_code, restricted_globals)
+
+    new_funs = [f for k, f in restricted_globals.items() if isinstance(f, types.FunctionType) and k not in orig_global_keys]
+    return new_funs[0] if new_funs else None
 
 if __name__ == '__main__':
     app()
