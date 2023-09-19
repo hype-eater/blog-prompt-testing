@@ -53,6 +53,25 @@ def intro(name: str = "User"):
     print(response.strip())
 
 
+@app.command()
+def code(description: str = "a function that returns 'Hello, World!'"):
+    """Generate Python code"""
+    from prompts import PYTHON_FUNCTION_PROMPT_TMPL
+    executor = get_prompt_executor(**state)
+    prompt = PYTHON_FUNCTION_PROMPT_TMPL.format_prompt(description=description)
+    response = executor(prompt.to_string())
+
+    try:
+        formatted_code = format_code(response)
+        f = exec_code_and_return_function(formatted_code)
+        if not f:
+            print("** Not a function :(")
+        print(formatted_code)
+    except Exception:
+        print("** OUCH! Unable to validate code:")
+        print(response.strip())
+
+
 def get_prompt_executor(model_name="text-davinci-003", provider="openai"):
     match provider:
         case "hfhub":
