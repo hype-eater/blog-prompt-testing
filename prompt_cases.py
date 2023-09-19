@@ -10,6 +10,17 @@ provider = os.getenv("PROVIDER")
 prompt_executor = get_prompt_executor(model, provider)
 
 
+class PythonFunctionPromptCase(LangchainPromptCase):
+    gen_fun = None
+
+    def post_run(self):
+        try:
+            formatted_code = format_code(self.response)
+            self.gen_fun = exec_code_and_return_function(formatted_code)
+        except Exception as e:
+            self.error = str(e)
+
+
 def greeting_case(prompt_executor, index: str | int) -> PromptCase:
     greeting_words = ["hello", "hi", "howdy", "welcome", "good day", "good morning",
                       "good evening", "hey", "hiya", "what's up"]
@@ -41,43 +52,43 @@ intro_tmpl_cases = [intro_case_for_name(prompt_executor, name) for name in names
 from prompts import PYTHON_FUNCTION_PROMPT_TMPL
 
 code_cases = [
-    LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
-                        key=f"code-hello-world",
-                        category="code",
-                        description="a function that returns the string 'Hello, World.'",
-                        evaluators=[lambda x: function_call_eval(x.response,
-                                                                 expected_output='Hello, World.')],
-                        prompt_executor=prompt_executor,
-                        ),
-    LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
-                        key=f"code-is-prime",
-                        category="code",
-                        description="a function that tests if an number is a prime number, returns a boolean",
-                        evaluators=[lambda x: function_call_eval(x.response,
-                                                                 args=[3],
-                                                                 expected_output=True),
-                                    lambda x: function_call_eval(x.response,
-                                                                 args=[10],
-                                                                 expected_output=False),
-                                    lambda x: function_call_eval(x.response,
-                                                                 args=[113],
-                                                                 expected_output=True),
-                                    ],
-                        prompt_executor=prompt_executor,
-                        ),
-        LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
-                        key=f"code-add",
-                        category="code",
-                        description="a function that sum two numbers, 'x' and 'y'",
-                        evaluators=[lambda x: function_call_eval(x.response,
-                                                                 kwargs={"x": 1.5, "y": 10.5},
-                                                                 expected_output=12.0),
-                                    lambda x: function_call_eval(x.response,
-                                                                 args=[45, -90],
-                                                                 expected_output=-45),
-                                    ],
-                        prompt_executor=prompt_executor,
-                        ),
+    PythonFunctionPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                             key=f"code-hello-world",
+                             category="code",
+                             description="a function that returns the string 'Hello, World.'",
+                             evaluators=[lambda x: function_call_eval(x.gen_fun,
+                                                                      expected_output='Hello, World.')],
+                             prompt_executor=prompt_executor,
+                             ),
+    PythonFunctionPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                             key=f"code-is-prime",
+                             category="code",
+                             description="a function that tests if an number is a prime number, returns a boolean",
+                             evaluators=[lambda x: function_call_eval(x.gen_fun,
+                                                                      args=[3],
+                                                                      expected_output=True),
+                                         lambda x: function_call_eval(x.gen_fun,
+                                                                      args=[10],
+                                                                      expected_output=False),
+                                         lambda x: function_call_eval(x.gen_fun,
+                                                                      args=[113],
+                                                                      expected_output=True),
+                                         ],
+                             prompt_executor=prompt_executor,
+                             ),
+    PythonFunctionPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                             key=f"code-add",
+                             category="code",
+                             description="a function that sum two numbers, 'x' and 'y'",
+                             evaluators=[lambda x: function_call_eval(x.gen_fun,
+                                                                      kwargs={"x": 1.5, "y": 10.5},
+                                                                      expected_output=12.0),
+                                         lambda x: function_call_eval(x.gen_fun,
+                                                                      args=[45, -90],
+                                                                      expected_output=-45),
+                                         ],
+                             prompt_executor=prompt_executor,
+                             )
 ]
 
 def valid_python_eval(response: str) -> int:
@@ -87,13 +98,11 @@ def valid_python_eval(response: str) -> int:
     except InvalidInput:
         return 0
 
-def function_call_eval(response: str, args=None, kwargs=None, expected_output=None):
+def function_call_eval(fun, args=None, kwargs=None, expected_output=None):
     args = args or []
     kwargs = kwargs or {}
     try:
-        raw_code = format_code(response)
-        gen_fun = exec_code_and_return_function(raw_code)
-        res = gen_fun(*args, **kwargs)
+        res = fun(*args, **kwargs)
         assert res == expected_output
         return 1
     except Exception:
