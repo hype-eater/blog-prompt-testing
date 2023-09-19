@@ -1,8 +1,7 @@
 from promptimize import evals
 from promptimize.prompt_cases import PromptCase, LangchainPromptCase
-
-from app import GREETING_PROMPT, INTRODUCTION_PROMPT_TMPL, get_prompt_executor
-
+from black import InvalidInput
+from app import GREETING_PROMPT, INTRODUCTION_PROMPT_TMPL, get_prompt_executor, format_code
 import os
 
 model = os.getenv("MODEL")
@@ -45,14 +44,31 @@ code_cases = [
                         key=f"code-hello-world",
                         category="code",
                         description="a function that returns the string 'Hello, World.'",
-                        evaluators=[lambda x: evals.all_words(x.response, ["def"])],
+                        evaluators=[lambda x: evals.all_words(x.response, ["def"]),
+                                    lambda x: valid_python_eval(x.response)],
                         prompt_executor=prompt_executor,
                         ),
     LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
                         key=f"code-is-prime",
                         category="code",
                         description="a function that tests if an number is a prime number, returns a boolean",
-                        evaluators=[lambda x: evals.all_words(x.response, ["def"])],
+                        evaluators=[lambda x: evals.all_words(x.response, ["def"]),
+                                    lambda x: valid_python_eval(x.response)],
                         prompt_executor=prompt_executor,
-                        )
+                        ),
+    LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                        key=f"code-bananas",
+                        category="code",
+                        description="bananas",
+                        evaluators=[lambda x: 1 - valid_python_eval(x.response)],
+                        prompt_executor=prompt_executor,
+                        ),
 ]
+
+
+def valid_python_eval(response: str) -> int:
+    try:
+        format_code(response)
+        return 1
+    except InvalidInput:
+        return 0

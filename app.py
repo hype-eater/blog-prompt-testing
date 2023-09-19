@@ -65,5 +65,11 @@ def get_prompt_executor(model_name="text-davinci-003", provider="openai"):
     return executor
 
 
+def format_code(raw_str: str) -> str:
+    from black import format_str, FileMode
+    formatted_code_str = format_str(raw_str, mode=FileMode())
+    return formatted_code_str
+
+
 if __name__ == '__main__':
     app()
