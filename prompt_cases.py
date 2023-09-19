@@ -37,3 +37,22 @@ def intro_case_for_name(prompt_executor, name: str) -> LangchainPromptCase:
 
 names = ["Kitty", "bob", "you", "ME", "who"]
 intro_tmpl_cases = [intro_case_for_name(prompt_executor, name) for name in names]
+
+from prompts import PYTHON_FUNCTION_PROMPT_TMPL
+
+code_cases = [
+    LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                        key=f"code-hello-world",
+                        category="code",
+                        description="a function that returns the string 'Hello, World.'",
+                        evaluators=[lambda x: evals.all_words(x.response, ["def"])],
+                        prompt_executor=prompt_executor,
+                        ),
+    LangchainPromptCase(PYTHON_FUNCTION_PROMPT_TMPL,
+                        key=f"code-is-prime",
+                        category="code",
+                        description="a function that tests if an number is a prime number, returns a boolean",
+                        evaluators=[lambda x: evals.all_words(x.response, ["def"])],
+                        prompt_executor=prompt_executor,
+                        )
+]
