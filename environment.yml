@@ -5,8 +5,10 @@ channels:
 dependencies:
   - python=3.10
   - typer
-  - langchain
+  - langchain<=0.0.312
   - black
   - restrictedpython
   - pip:
       - promptimize
+      - llama-index<0.8.31
+      - sentence-transformers
