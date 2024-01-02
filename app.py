@@ -117,7 +117,7 @@ def city_db(query: str = "What is the largest city?"):
     print(response.response)
 
 
-def get_prompt_executor(model_name="text-davinci-003", provider="openai"):
+def get_prompt_executor(model_name="gpt-3.5-turbo", provider="openai"):
     match provider:
         case "hfhub":
             model_name = model_name or "google/flan-t5-xxl"
@@ -127,7 +127,7 @@ def get_prompt_executor(model_name="text-davinci-003", provider="openai"):
             from hiya import Hiya
             executor = Hiya()
         case _:  # default to "openai"
-            model_name = model_name or "text-davinci-003"
+            model_name = model_name or "gpt-3.5-turbo"
             executor = OpenAI(model_name=model_name)
     return executor
 
