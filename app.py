@@ -27,7 +27,7 @@ def intro(name: str = "User"):
     print(response.strip())
 
 
-def get_prompt_executor(model_name="text-davinci-003"):
+def get_prompt_executor(model_name="gpt-3.5-turbo"):
     executor = OpenAI(model_name=model_name)
     return executor
 
